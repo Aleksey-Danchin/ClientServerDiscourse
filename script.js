@@ -10,6 +10,31 @@ const week = 7 * day
 const month = 30 * day
 const year = 365 * day
 
+let valutes = {}
+
+let converter = new Proxy({} , { 
+	get (target, name) { 
+		if (target[name] !== undefined) { 
+			return traget[name] 
+		} 
+
+		const key = '_to_'
+		const indexOfTo = name.indexOf(key) 
+		const fromCurrency = name.slice(0, indexOfTo) 
+		const toCurrency = name.slice(indexOfTo + key.length)
+
+		return (val) => {
+			const nominalFrom = valutes[fromCurrency].Nominal
+			const valueFrom = valutes[fromCurrency].Value
+
+			const nominalTo = valutes[toCurrency].Nominal
+			const valueTo = valutes[toCurrency].Value
+
+			return parseInt(100 * val * (valueFrom / nominalFrom) * valueTo) / 100
+		}
+	} 
+})
+
 // const period =
 // 	  12 * year
 // 	+  3 * month
@@ -103,13 +128,12 @@ async function main7 () {
 }
 
 async function main8 () {
-	setTimeout(main8, periodUpdate)
-
 	const answer = await fetch(url, {
 		method,
 		cache: 'no-cache'
 	})
 
 	const data = await answer.json()
-	console.log(data.Valute.EUR.Value)
+	valutes = data.Valute
+	console.log(converter.AMD_to_JPY(12))
 }
